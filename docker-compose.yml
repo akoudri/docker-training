@@ -1,0 +1,43 @@
+version: "3"
+
+volumes:
+  db-data:
+  pgadmin-data:
+
+services:
+  pgadmin4:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4
+    hostname: pgadmin4
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=ali.koudri@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=training2024
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin4/storage
+    ports:
+      - "9090:80"
+
+  database:
+    image: postgres:alpine
+    container_name: database
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=db
+      - POSTGRES_PASSWORD=db
+      - POSTGRES_DB=db
+    ports:
+      - 6543:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data:Z
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+
