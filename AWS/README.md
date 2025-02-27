@@ -33,7 +33,8 @@
 - Créer ensuite une tâche
     - Sélectionner "Create new task definition with JSON"
     - Adapter le fichier taskdef.json et copier / coller le contenu dans l'interface de spécification de la tâche"
-- Retourner ensuite sur le cluster et créer un service
+- Créer un service
+    - Retourner ensuite sur le cluster
     - Dans "Deployment Configuration", sélectionner la famille et la révision
     - Donner un nom au service
     - Laisser les autres paramètres par défaut

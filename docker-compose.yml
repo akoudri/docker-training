@@ -29,7 +29,7 @@ services:
     ports:
       - 6543:5432
     volumes:
-      - db-data:/var/lib/postgresql/data:Z
+      - db-data:/var/lib/postgresql/data
 
   nginx:
     image: nginx:latest
