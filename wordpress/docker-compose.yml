@@ -1,0 +1,29 @@
+services:
+
+  wordpress:
+    image: wordpress
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: training
+      WORDPRESS_DB_PASSWORD: training
+      WORDPRESS_DB_NAME: training
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: training
+      MYSQL_USER: training
+      MYSQL_PASSWORD: training
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:
