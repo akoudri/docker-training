@@ -27,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=db
       - POSTGRES_DB=db
     ports:
-      - 6543:5432
+      - 5432:5432
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -35,9 +35,24 @@ services:
     image: nginx:latest
     container_name: nginx
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     ports:
       - 80:80
       - 443:443
     volumes:
       - ./nginx/html:/usr/share/nginx/html
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
 
