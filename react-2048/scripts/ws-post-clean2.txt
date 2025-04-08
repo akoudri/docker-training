@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    
+    environment {
+        FILE_NAME = 'hello.txt'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                cleanWs()
+                sh '''
+                    mkdir build
+                    touch build/$FILE_NAME
+                    echo "Hello World" >> build/$FILE_NAME
+                    cat build/$FILE_NAME
+                '''
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'echo "Tests"'
+                sh 'test -f build/$FILE_NAME'
+            }
+        }
+    }
+    post {
+        success {
+            archiveArtifacts artifacts: 'build/**'
+        }
+    }
+}

@@ -6,7 +6,7 @@ services:
     privileged: true
     user: root
     ports:
-      - 80:8080
+      - 8080:8080
       - 50000:50000
     container_name: jenkins
     volumes:
@@ -15,26 +15,26 @@ services:
       - /usr/bin/docker:/usr/bin/docker
     restart: unless-stopped
 
-  # agent1:
-  #   build:
-  #     context: ./images/dockeragent
-  #   container_name: agent1
-  #   environment:
-  #     - JENKINS_URL=http://jenkins:8080
-  #     - JENKINS_AGENT_NAME=agent1
-  #     - JENKINS_SECRET=903de2db45bb581e0f6a1c3f9c96b882831272010828d5abcd0d95ee4ae50e32
-  #   depends_on:
-  #     - jenkins
+  agent1:
+    build:
+      context: ./images/dockeragent
+    container_name: agent1
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_AGENT_NAME=agent1
+      - JENKINS_SECRET=1db0a7622b25b641b34d1acb85e16b1286b0713ed7a617515ced25fd57d1953b
+    depends_on:
+      - jenkins
 
-  # agent2:
-  #   image: jenkins/inbound-agent
-  #   container_name: agent2
-  #   environment:
-  #     - JENKINS_URL=http://jenkins:8080
-  #     - JENKINS_AGENT_NAME=agent2
-  #     - JENKINS_SECRET=0b6fa426d799e973c2749e502cac3c9b23fd5f1a2aae72aa49525202cf956461
-  #   depends_on:
-  #     - jenkins
+  agent2:
+    image: jenkins/inbound-agent
+    container_name: agent2
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_AGENT_NAME=agent2
+      - JENKINS_SECRET=9afc15a0cd2c14c749799432d70603d84920c2f27b22143e66612a07c72544aa
+    depends_on:
+      - jenkins
 
 volumes:
   jenkins_home:

@@ -54,7 +54,7 @@ export default function Home() {
           </a>
         </div>
         <div>Made with ❤️ by Matéush</div>
-        <div>Version {process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0"}</div>
+        <div>Version {process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'}</div>
       </footer>
     </div>
   );

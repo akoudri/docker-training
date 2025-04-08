@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Docker') {
+            steps {
+                sh 'docker build -t mynodejs:latest images/nodejs'
+                sh 'docker build -t myawscli:latest images/aws-cli'
+            }
+        }
+    }
+}

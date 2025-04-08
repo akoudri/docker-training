@@ -1,0 +1,23 @@
+def logMessage(String level, String message) {
+    def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+    def prefix = "[${level}] ${timestamp}"
+    echo "${prefix} - ${message}"
+}
+
+pipeline {
+    agent any
+    environment {
+        LOG_LEVEL = 'DEBUG'  // DEBUG, INFO, WARN, ERROR
+    }
+    stages {
+        stage('Example') {
+            steps {
+                logMessage('INFO', 'Starting process')
+                logMessage('DEBUG', "Current workspace: ${env.WORKSPACE}")
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    echo 'hello from Workflow'
+                }
+            }
+        }
+    }
+}

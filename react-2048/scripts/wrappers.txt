@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+    options {
+        timestamps()
+        ansiColor('xterm')
+    }
+    stages {
+        stage('Build') {
+            steps {
+                withEnv(['JAVA_HOME=/usr/lib/jvm/java-11']) {
+                    sh 'mvn clean install'
+                }
+            }
+        }
+    }
+}

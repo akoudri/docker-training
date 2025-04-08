@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+
+    environment {
+        NEXT_PUBLIC_APP_VERSION = "1.0.${BUILD_NUMBER}"
+        AWS_DEFAULT_REGION = 'eu-west-3'
+        DOCKER_REGISTRY = '923692348898.dkr.ecr.eu-west-3.amazonaws.com'
+    }
+
+    stages {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'mynodejs:latest'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm ci
+                    npm run build
+                '''
+            }
+        }
+        stage('Test') {
+            agent {
+                docker {
+                    image 'mynodejs:latest'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm run test
+                    npm run test-coverage
+                '''
+            }
+        }
+        stage('Build Docker Image') { 
+            agent {
+                docker {
+                    image 'bentolor/docker-dind-awscli'
+                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-access-key', 
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+                    usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        docker build -t $DOCKER_REGISTRY/jenkins-training:$NEXT_PUBLIC_APP_VERSION .
+                        aws ecr get-login-password | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+                        docker push $DOCKER_REGISTRY/jenkins-training:$NEXT_PUBLIC_APP_VERSION 
+                    '''
+                }
+            }
+        }
+        stage('Deploy AWS') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "-u root --entrypoint=''"
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-access-key', 
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+                    usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        yum install -y jq
+                        sed -i "s/APP_VERSION/$NEXT_PUBLIC_APP_VERSION/g" aws/taskdef.json
+                        export REV=$(aws ecs register-task-definition --cli-input-json file://aws/taskdef.json | jq -r '.taskDefinition.revision')
+                        aws ecs update-service --cluster ProdCluster --service JenkinsTraining-Service-Prod --task-definition JenkinsTraining-TaskDef-Prod:$REV
+                        aws ecs wait services-stable --cluster ProdCluster --services JenkinsTraining-Service-Prod
+                    '''
+                }
+            }
+        }
+    }
+}

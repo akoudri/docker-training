@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    environment {
+        MAVEN_HOME = '/usr/local/maven'
+        DATABASE_URL = credentials('db-credentials')
+    }
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            mail to: 'ali.koudri@gmail.com',
+                subject: 'Pipeline failed'
+        }
+    }
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    parameters {
+        string(name: 'DEPLOY_ENV', defaultValue: 'staging')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true)
+        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'])
+    }
+    triggers {
+        cron('H */4 * * 1-5')
+        pollSCM('H/15 * * * *')
+    }
+    tools {
+        maven 'Maven 3.8.1'
+        jdk 'JDK 11'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+    }
+}

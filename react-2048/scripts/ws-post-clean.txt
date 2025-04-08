@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mkdir build'
+                sh 'touch build/hello.txt'
+                sh 'echo "Hello World" >> build/hello.txt'
+                sh 'cat build/hello.txt'
+            }
+        }
+    }
+    //Ne fonctionne pas -> déplacer dans stages l'appel à cleanWs()
+    post {
+        success {
+            archiveArtifacts artifacts: 'build/**'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

@@ -5,26 +5,29 @@ pipeline {
         NETLIFY_SITE_ID = 'eaa523cf-1138-4be1-84e6-dcc8d66cc4ba'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         NEXT_PUBLIC_APP_VERSION = "1.0.${BUILD_NUMBER}"
-    }
-
-    tools {
-        maven 'Maven 3.8.1'
-        jdk 'JDK 11'
+        AWS_S3_BUCKET = 'jenkins-training-070225'
     }
 
     stages {
-        // stage('Docker') {
+        // stage('AWS') {
+        //     agent {
+        //         docker {
+        //             image 'amazon/aws-cli'
+        //             args "--entrypoint=''"
+        //             //reuseNode true
+        //         }
+        //     }
         //     steps {
-        //         sh 'docker build -t mynodejs:latest .'
+        //         withCredentials([usernamePassword(credentialsId: 'aws-access-key', 
+        //             passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+        //             usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+        //             sh 'aws --version'
+        //             sh 'aws s3 ls'
+        //         }
+                
         //     }
         // }
         stage('Build') {
-            // agent {
-            //     docker {
-            //         image 'node:20-alpine'
-            //         reuseNode true
-            //     }
-            // }
             agent {
                 docker {
                     image 'mynodejs:latest'
@@ -43,12 +46,6 @@ pipeline {
             }
         }
         stage('Test') {
-            // agent {
-            //     docker {
-            //         image 'node:20-alpine'
-            //         reuseNode true
-            //     }
-            // }
             agent {
                 docker {
                     image 'mynodejs:latest'
@@ -63,12 +60,6 @@ pipeline {
             }
         }
         stage('Deploy Staging') {
-            // agent {
-            //     docker {
-            //         image 'node:20-alpine'
-            //         reuseNode true
-            //     }
-            // }
             agent {
                 docker {
                     image 'mynodejs:latest'
@@ -83,21 +74,12 @@ pipeline {
                     netlify status
                     netlify deploy --dir=out --json > netlify-deploy.json
                 '''
-                // script {
-                //     env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' netlify-deploy.json", returnStdout: true)
-                // }
                 script {
                     env.STAGING_URL = sh(script: "node-jq -r '.deploy_url' netlify-deploy.json", returnStdout: true)
                 }
             }
         }
         stage('Deploy Production') {
-            // agent {
-            //     docker {
-            //         image 'node:20-alpine'
-            //         reuseNode true
-            //     }
-            // }
             agent {
                 docker {
                     image 'mynodejs:latest'
@@ -124,12 +106,21 @@ pipeline {
                 '''
             }
         }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'test-report.html'
-            archiveArtifacts artifacts: 'out/**'
+        stage('Deploy AWS') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "--entrypoint=''"
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-access-key', 
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+                    usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh 'aws s3 sync out s3://${AWS_S3_BUCKET}'
+                }
+            }
         }
     }
 }
