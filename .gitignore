@@ -1,2 +1,5 @@
 flask/venv
 flask/__pycache__
+react-2048/.next
+react-2048/node_modules
+
