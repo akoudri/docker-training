@@ -1,0 +1,17 @@
+# Dependencies and build outputs are recreated inside the image
+node_modules
+.next
+out
+
+# Test artefacts
+coverage
+test-report.html
+
+# Not needed to build the app
+.git
+.docs
+aws
+scripts
+images
+docker-compose.yml
+Dockerfile
