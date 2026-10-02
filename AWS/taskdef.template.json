@@ -1,0 +1,33 @@
+{
+    "family": "${FAMILY}",
+    "requiresCompatibilities": ["FARGATE"],
+    "networkMode": "awsvpc",
+    "cpu": "256",
+    "memory": "512",
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX",
+        "cpuArchitecture": "X86_64"
+    },
+    "executionRoleArn": "${EXECUTION_ROLE_ARN}",
+    "containerDefinitions": [
+        {
+            "name": "${APP}",
+            "image": "${IMAGE}",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": ${PORT},
+                    "protocol": "tcp"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "${LOG_GROUP}",
+                    "awslogs-region": "${AWS_REGION}",
+                    "awslogs-stream-prefix": "app"
+                }
+            }
+        }
+    ]
+}

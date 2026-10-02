@@ -1,0 +1,5 @@
+# Copier en terraform.tfvars et adapter si besoin
+region         = "eu-west-3"
+project        = "docker-training"
+container_port = 80
+desired_count  = 1

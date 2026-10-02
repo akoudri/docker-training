@@ -1,2 +1,7 @@
+pass.txt
 flask/venv
 flask/__pycache__
+AWS/terraform/.terraform/
+AWS/terraform/*.tfstate
+AWS/terraform/*.tfstate.*
+AWS/terraform/terraform.tfvars
