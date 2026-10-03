@@ -4,6 +4,7 @@ volumes:
   db-data:
   pgadmin-data:
 
+
 services:
   pgadmin4:
     image: dpage/pgadmin4:latest
@@ -19,7 +20,7 @@ services:
       - "9090:80"
 
   database:
-    image: postgres:alpine
+    image: postgres:14.24
     container_name: database
     restart: unless-stopped
     environment:
